@@ -11,6 +11,8 @@ import Clases_Tablas.Visita;
 public class DAOVisita {
 
 	private final String selectSQLall = "SELECT nombreNene, nombreVecino, chuches FROM VISITA";
+	private final String sqlPK1 = "SELECT COUNT(*) FROM VECINO WHERE nombreVecino = ";
+	private final String sqlPK2 = "SELECT COUNT(*) FROM NENE WHERE nombreNene = ";
 
 	public List<Visita> read() {
 
@@ -25,7 +27,7 @@ public class DAOVisita {
 				String nombreNene = rs.getString(1);
 				String nombreVecino = rs.getString(2);
 				String chuches = rs.getString(3);
-				
+
 				Visita custom = new Visita(nombreNene, nombreVecino, chuches);
 				visita.add(custom);
 			}
@@ -42,7 +44,52 @@ public class DAOVisita {
 		return null;
 	}
 
-	// TODO
+	public boolean buscarPk1(String nombre) {
+		ConexionMariaDB conexion = new ConexionMariaDB();
+		Integer nombreNene = 0;
+
+		try {
+			conexion.connect();
+			ResultSet rs = conexion.executeSelect(sqlPK1.concat("'" + nombre + "'"));
+			while (rs.next()) {
+				nombreNene = rs.getInt(1);
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		} finally {
+			conexion.disconnect();
+		}
+
+		if (nombreNene > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public boolean buscarPk2(String nombre) {
+		ConexionMariaDB conexion = new ConexionMariaDB();
+		Integer nombreNene = 0;
+
+		try {
+			conexion.connect();
+			ResultSet rs = conexion.executeSelect(sqlPK2.concat("'" + nombre + "'"));
+			while (rs.next()) {
+				nombreNene = rs.getInt(1);
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		} finally {
+			conexion.disconnect();
+		}
+
+		if (nombreNene > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public void update(List<Visita> ns) {
 		for (Visita p : ns) {
 			update(p);
@@ -67,27 +114,27 @@ public class DAOVisita {
 			conexion.disconnect();
 		}
 	}
-	
+
 	public void insert(Visita v) {
 		String nombreNene = v.getNombreNene();
 		String nombreVecino = v.getNombreVecino();
 		String chuches = v.getChuches();
-		
+
 		Visita custom = new Visita(nombreNene, nombreVecino, chuches);
 		ConexionMariaDB conexion = new ConexionMariaDB();
 		try {
 			conexion.connect();
-			conexion.executeUpdate("INSERT INTO Visita (nombreNene, nombreVecino, chuches) VALUES ('" + nombreNene + "', '" + nombreVecino + "', '" + chuches + "');");
+			conexion.executeUpdate("INSERT INTO Visita (nombreNene, nombreVecino, chuches) VALUES ('" + nombreNene
+					+ "', '" + nombreVecino + "', '" + chuches + "');");
 
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		} finally {
 			conexion.disconnect();
 		}
-		
+
 	}
 
-	
 	public void delete(Visita v) {
 		String updateTable = "DELETE FROM visita ";
 		String whereSQL = crearCondicionesSQLWhere(v);
@@ -111,7 +158,7 @@ public class DAOVisita {
 		String result = " SET " + String.join(", ", params);
 		return result;
 	}
-	
+
 	private String crearCondicionesSQLWhere(Visita v) {
 		String result = "";
 		ArrayList<String> params;
@@ -138,21 +185,21 @@ public class DAOVisita {
 	private ArrayList<String> parametrosNOpk(Visita v) {
 		ArrayList<String> params = new ArrayList<String>();
 		String chuches = v.getChuches();
-		
+
 		if (NotNullOrEmpty(chuches)) {
 			params.add("chuches= '" + chuches + "'");
 		}
 
 		return params;
 	}
-	
+
 	private boolean HasPK(Visita v) {
 		if (NotNullOrEmpty(v.getNombreVecino()) && NotNullOrEmpty(v.getNombreNene())) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	private boolean IntegerNotNullAndGreaterZero(Integer i) {
 		if (i == null || i <= 0) {
 			return false;
@@ -160,14 +207,12 @@ public class DAOVisita {
 		return true;
 
 	}
-	
+
 	private boolean NotNullOrEmpty(String str) {
 		if (str != null && !str.trim().isEmpty()) {
 			return true;
 		}
 		return false;
 	}
-	
-	
 
 }

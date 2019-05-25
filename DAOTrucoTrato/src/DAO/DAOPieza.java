@@ -10,6 +10,7 @@ import Clases_Tablas.Pieza;
 public class DAOPieza {
 
 	private final String selectSQLall = "SELECT codigoPieza, codigoDisfraz, nombre, color, descripcion FROM PIEZA";
+	private final String sqlPK = "SELECT COUNT(*) FROM PIEZA WHERE codigoPieza = ";
 
 	public List<Pieza> read() {
 
@@ -41,6 +42,29 @@ public class DAOPieza {
 
 	public List<Pieza> read(Pieza p) {
 		return null;
+	}
+	
+	public boolean buscarPk(Integer numero) {
+		ConexionMariaDB conexion = new ConexionMariaDB();
+		Integer nombreNene = 0;
+
+		try {
+			conexion.connect();
+			ResultSet rs = conexion.executeSelect(sqlPK.concat("" + numero + ""));
+			while (rs.next()) {
+				nombreNene = rs.getInt(1);
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		} finally {
+			conexion.disconnect();
+		}
+
+		if (nombreNene > 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public void update(List<Pieza> ps) {

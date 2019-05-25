@@ -12,6 +12,7 @@ import Clases_Tablas.Visita;
 public class DAODisfraz {
 
 	private final String selectSQLall = "SELECT nombreNene, codigoDisfraz, nombre, talla, descripcion FROM DISFRAZ";
+	private final String sqlPK = "SELECT COUNT(*) FROM DISFRAZ WHERE codigoDisfraz = ";
 
 	public List<Disfraz> read() {
 
@@ -45,7 +46,29 @@ public class DAODisfraz {
 		return null;
 	}
 
+	public boolean buscarPk(Integer numero) {
+		ConexionMariaDB conexion = new ConexionMariaDB();
+		Integer nombreNene = 0;
 
+		try {
+			conexion.connect();
+			ResultSet rs = conexion.executeSelect(sqlPK.concat("" + numero + ""));
+			while (rs.next()) {
+				nombreNene = rs.getInt(1);
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		} finally {
+			conexion.disconnect();
+		}
+
+		if (nombreNene > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public void update(List<Disfraz> ns) {
 		for (Disfraz p : ns) {
 			update(p);

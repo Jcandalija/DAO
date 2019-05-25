@@ -9,6 +9,7 @@ import Clases_Tablas.Nene;
 public class DAONene {
 
 	private final String selectSQLall = "SELECT nombreNene, edad, genero FROM NENE";
+	private final String sqlPK = "SELECT COUNT(*) FROM NENE WHERE nombreNene = ";
 
 	public List<Nene> read() {
 
@@ -39,7 +40,31 @@ public class DAONene {
 	public List<Nene> read(Nene n) {
 		return null;
 	}
+	
+	public boolean buscarPk(String nombre) {
+		ConexionMariaDB conexion = new ConexionMariaDB();
+		Integer nombreNene = 0;
 
+		try {
+		conexion.connect();
+		ResultSet rs = conexion.executeSelect(sqlPK.concat("'"+ nombre + "'"));
+		while (rs.next()) {
+		nombreNene = rs.getInt(1);
+		}
+		} catch (Exception e) {
+		System.out.println(e.getMessage());
+		} finally {
+		conexion.disconnect();
+		}
+
+		if (nombreNene > 0) {
+		return true;
+		}
+		else {
+		return false;
+		}
+		}
+	
 	public void update(List<Nene> ns) {
 		for (Nene p : ns) {
 			update(p);
